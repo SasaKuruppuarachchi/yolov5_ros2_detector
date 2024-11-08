@@ -13,6 +13,7 @@ State-of-the-art object detection technique, [YOLOv5](https://github.com/ultraly
 
 ## 1. Installation
 ### 1.1 Prerequisities
+#### 1.1.1 Native
 - Install ROS2 from the official [ROS2 website](https://www.ros.org/)<br>
 For Ubuntu Linux - Focal Fossa (20.04): [ROS Foxy installation guide](https://docs.ros.org/en/foxy/Installation.html)
 - Strictly necessary YOLOv5 related libraries and packages:<br>
@@ -20,6 +21,12 @@ Run the following command in terminal for [yolov5_strict_requirements.txt](yolov
 ```
 pip install -r yolov5_strict_requirements.txt
 ```
+#### 1.1.2 Docker 
+
+Download the docker from [RAICAM-EU-Project/isaac_ros_common](https://github.com/RAICAM-EU-Project/isaac_ros_common/tree/agipix-sim) and follow the instructions to build the image.
+
+Mount the workspace (~/yolo_ws/) to the docker using the run_dev.sh
+
 ### 1.2 Setting-up workspace
 Run the following commands in terminal:
 ```
@@ -29,11 +36,9 @@ git clone https://github.com/SasaKuruppuarachchi/yolov5_ros2_pkg.git
 # create directory
 mkdir -p ~/yolo_ws/src
 
-# paste the sub-directories (yolov5_ros2, boundingboxes) from cloned repo in src folder
-
 # build workspace
 cd ~/yolo_ws
-colcon build
+colcon build --symlink-install
 ```
 ## 2. Running Object Detection
 ### 2.1 Video input
@@ -56,6 +61,6 @@ cd ~/yolo_ws
 
 # run launch file to initialize yolov5_ros2 node
 # provide the input image-stream topic name as argument (in our case, its '/image')
-# also provide the weight file that you want to use (default: yolov5l.pt)
+# also provide the weight file that you want to use (default: best.pt)
 ros2 launch yolov5_ros2 yolov5_ros2_node.launch.py sub_topic:='/image' weights:='yolov5s.pt'
 ```
