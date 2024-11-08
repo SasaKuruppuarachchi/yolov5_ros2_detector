@@ -45,7 +45,7 @@ class ImageStreamSubscriber(Node):
                 weight_loc.append(direc)
             else:
                 break
-        weight_loc.append("src/yolov5_ros2_pkg/yolov5_ros2/yolov5_ros2/weights/")
+        weight_loc.append("src/yolov5_ros2_detector/yolov5_ros2/yolov5_ros2/weights/")
         weight_loc = "/".join(weight_loc)
         #print(weight_loc)
         
