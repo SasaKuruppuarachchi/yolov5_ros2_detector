@@ -6,13 +6,13 @@ from launch_ros.actions import Node
 
 def generate_launch_description():
     sub_arg = DeclareLaunchArgument(
-        "sub_topic", default_value=TextSubstitution(text="/drone0/Camera/rgb")
+        "sub_topic", default_value=TextSubstitution(text="/image")
     )
     pub_arg = DeclareLaunchArgument(
         "pub_topic", default_value=TextSubstitution(text="/yolov5_ros2/image")
     )
     weight_arg = DeclareLaunchArgument(
-        "weights", default_value=TextSubstitution(text="best.pt")
+        "weights", default_value=TextSubstitution(text="yolov5s.pt")
     )
     device_arg = DeclareLaunchArgument(
         "device", default_value=TextSubstitution(text="")

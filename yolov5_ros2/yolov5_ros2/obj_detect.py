@@ -1,13 +1,14 @@
 # ------------------------------------------------------------------------------------------------------------
 # =========================================== YOLOv5 ROS2 ====================================================
 # ------------------------------------------------------------------------------------------------------------
+import torch
 import time
 import os
 import sys
 from pathlib import Path
 
 import cv2
-import torch
+
 import torch.backends.cudnn as cudnn
 
 from models.experimental import attempt_load
@@ -87,12 +88,12 @@ class ImageStreamSubscriber(Node):
         
         # loading model
         self.model_initialization()
-        
+        print("Model loaded")
         # initializing publish and subscribe nodes
         self.flag = ord('a')
         self.detection_img_pub = self.create_publisher(Image, self.published_topic, 10)
         self.bboxes_pub = self.create_publisher(BoundingBoxes,"yolov5_ros2/bounding_boxes", 10)
-        
+        print("sub to ", self.subscribed_topic )
         self.subscription = self.create_subscription(Image, self.subscribed_topic, self.subscriber_callback, 10)
         self.subscription                                                           # prevent unused variable warning
 
