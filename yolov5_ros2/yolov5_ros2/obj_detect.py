@@ -51,11 +51,11 @@ class ImageStreamSubscriber(Node):
         #print(weight_loc)
         
         # parameters
-        self.declare_parameter('weights', 'yolov5s.pt')
+        self.declare_parameter('weights', 'best.pt')
         self.declare_parameter('subscribed_topic', '/image')
         self.declare_parameter('published_topic', '/yolov5_ros2/image')
         self.declare_parameter('img_size', 416)
-        self.declare_parameter('device', '')
+        self.declare_parameter('device', 'cuda')
         self.declare_parameter('conf_thres', 0.5)
         self.declare_parameter('iou_thres', 0.45)
         self.declare_parameter('max_det', 1000)
@@ -86,6 +86,8 @@ class ImageStreamSubscriber(Node):
         check_requirements(exclude=('tensorboard', 'pycocotools', 'thop'))
         self.bridge = CvBridge()
         
+        #self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        
         # loading model
         self.model_initialization()
         print("Model loaded")
@@ -111,7 +113,6 @@ class ImageStreamSubscriber(Node):
         # Convert
         self.img = self.img.transpose((2, 0, 1))[::-1]                              # HWC to CHW, BGR to RGB
         self.img = np.ascontiguousarray(self.img)
-        
         self.img = torch.from_numpy(self.img).to(self.device)
         self.img = self.img.half() if self.half else self.img.float()               # uint8 to fp16/32
         self.img /= 255.0  # 0 - 255 to 0.0 - 1.0
@@ -189,7 +190,8 @@ class ImageStreamSubscriber(Node):
         
         # Initialize
         set_logging()
-        self.device = select_device(self.device)
+        print("in device:",self.device)
+        self.device = device = torch.device("cuda" if torch.cuda.is_available() else "cpu")# select_device(self.device)
         self.half = self.half and self.device.type != 'cpu'                         # half precision only supported on CUDA
         print("device:",self.device)
         

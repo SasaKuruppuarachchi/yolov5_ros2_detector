@@ -12,7 +12,7 @@ def generate_launch_description():
         "pub_topic", default_value=TextSubstitution(text="/yolov5_ros2/image")
     )
     weight_arg = DeclareLaunchArgument(
-        "weights", default_value=TextSubstitution(text="yolov5s.pt")
+        "weights", default_value=TextSubstitution(text="best.pt")
     )
     device_arg = DeclareLaunchArgument(
         "device", default_value=TextSubstitution(text="")
