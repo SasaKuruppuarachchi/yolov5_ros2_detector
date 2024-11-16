@@ -31,6 +31,7 @@ from sensor_msgs.msg import Image
 from ament_index_python.packages import get_package_share_directory
 
 from boundingboxes.msg import BoundingBox, BoundingBoxes
+from boundingboxes.srv import DetectObjects
 
 
 class ImageStreamSubscriber(Node):
@@ -87,7 +88,7 @@ class ImageStreamSubscriber(Node):
         self.bridge = CvBridge()
         
         #self.device = "cuda" if torch.cuda.is_available() else "cpu"
-        
+        self.img_msg = None
         # loading model
         self.model_initialization()
         print("Model loaded")
@@ -97,15 +98,36 @@ class ImageStreamSubscriber(Node):
         self.bboxes_pub = self.create_publisher(BoundingBoxes,"yolov5_ros2/bounding_boxes", 10)
         print("sub to ", self.subscribed_topic )
         self.subscription = self.create_subscription(Image, self.subscribed_topic, self.subscriber_callback, 10)
-        self.subscription                                                           # prevent unused variable warning
+        self.subscription         
+        self.srv = self.create_service(DetectObjects, 'detect_objects', self.detect_objects_callback)
+        # prevent unused variable warning
 
     def subscriber_callback(self, msg):
+        self.img_msg = msg
+
+    def detect_objects_callback(self, request, response):
+        if self.img_msg is None:
+            response.success = False
+            response.message = "No image received yet"
+            return response
         
+        
+        processed_imgmsg, bboxes = self.detect_objects(self.img_msg)
+        
+        self.detection_img_pub.publish(processed_imgmsg)
+        self.bboxes_pub.publish(bboxes)
+        
+        #service response
+        response.success = True
+        response.message = "Detection completed"
+        return response
+        
+    def detect_objects(self, img_msg):
         # storing input image msg header
-        imgmsg_header = msg.header
+        imgmsg_header = img_msg.header
         
         # converting image-ros-msg into 3-channel (bgr) image formate
-        self.im0s = self.bridge.imgmsg_to_cv2(msg, 'bgr8')
+        self.im0s = self.bridge.imgmsg_to_cv2(img_msg, 'bgr8')
         
         # Padded resize
         self.img = letterbox(self.im0s, self.imgsz, stride=self.stride)[0]
@@ -180,11 +202,8 @@ class ImageStreamSubscriber(Node):
         
         bboxes.header = imgmsg_header                                               # assigning header of input image msg
         bboxes.header.stamp = timestamp
-        
-        self.detection_img_pub.publish(processed_imgmsg)
-        self.bboxes_pub.publish(bboxes)
-        
-        
+        return processed_imgmsg, bboxes
+    
     @torch.no_grad()
     def model_initialization(self):
         

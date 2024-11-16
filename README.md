@@ -66,4 +66,8 @@ cd ~/yolo_ws
 # provide the input image-stream topic name as argument (in our case, its '/image')
 # also provide the weight file that you want to use (default: best.pt)
 ros2 launch yolov5_ros2 yolov5_ros2_node.launch.py sub_topic:='/image' weights:='yolov5s.pt'
+
+
+# call for the detection service
+ros2 service call /detect_objects boundingboxes/srv/DetectObjects "{}"
 ```
