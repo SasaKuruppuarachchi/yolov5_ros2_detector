@@ -32,7 +32,7 @@ from ament_index_python.packages import get_package_share_directory
 
 from boundingboxes.msg import BoundingBox, BoundingBoxes
 from boundingboxes.srv import DetectObjects
-
+from rclpy.qos import qos_profile_sensor_data
 
 class ImageStreamSubscriber(Node):
 
@@ -53,7 +53,7 @@ class ImageStreamSubscriber(Node):
         
         # parameters
         self.declare_parameter('weights', 'best.pt')
-        self.declare_parameter('subscribed_topic', '/image')
+        self.declare_parameter('subscribed_topic', '/drone0/camera/image')
         self.declare_parameter('published_topic', '/yolov5_ros2/image')
         self.declare_parameter('img_size', 416)
         self.declare_parameter('device', 'cuda')
@@ -97,7 +97,7 @@ class ImageStreamSubscriber(Node):
         self.detection_img_pub = self.create_publisher(Image, self.published_topic, 10)
         self.bboxes_pub = self.create_publisher(BoundingBoxes,"yolov5_ros2/bounding_boxes", 10)
         print("sub to ", self.subscribed_topic )
-        self.subscription = self.create_subscription(Image, self.subscribed_topic, self.subscriber_callback, 10)
+        self.subscription = self.create_subscription(Image, self.subscribed_topic, self.subscriber_callback, qos_profile_sensor_data)
         self.subscription         
         self.srv = self.create_service(DetectObjects, 'detect_objects', self.detect_objects_callback)
         # prevent unused variable warning
