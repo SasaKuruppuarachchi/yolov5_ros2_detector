@@ -51,7 +51,8 @@ class ImageStreamSubscriber(Node):
         weight_loc.append("src/yolov5_ros2_detector/yolov5_ros2/yolov5_ros2/weights/")
         weight_loc = "/".join(weight_loc)
         #print(weight_loc)
-        
+        self.camera_info = None
+        self.center = []
         # parameters
         self.declare_parameter('weights', 'yolov5s.pt')
         self.declare_parameter('subscribed_topic', '/image')
