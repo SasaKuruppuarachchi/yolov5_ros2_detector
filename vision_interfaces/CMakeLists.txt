@@ -11,9 +11,11 @@ find_package(sensor_msgs REQUIRED)
 find_package(vision_msgs REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
 
+
 rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/SegmentImage.srv"
   "srv/GetPose.srv"
+  "srv/SavePointCloud.srv"
   DEPENDENCIES sensor_msgs vision_msgs
 )
 ament_export_dependencies(rosidl_default_runtime sensor_msgs)

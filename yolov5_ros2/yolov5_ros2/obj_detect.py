@@ -52,12 +52,12 @@ class ImageStreamSubscriber(Node):
         #print(weight_loc)
         
         # parameters
-        self.declare_parameter('weights', 'best.pt')
+        self.declare_parameter('weights', 'best_drone_1.pt')
         self.declare_parameter('subscribed_topic', '/drone0/camera/image')
         self.declare_parameter('published_topic', '/yolov5_ros2/image')
         self.declare_parameter('img_size', 416)
         self.declare_parameter('device', 'cuda')
-        self.declare_parameter('conf_thres', 0.5)
+        self.declare_parameter('conf_thres', 0.4)
         self.declare_parameter('iou_thres', 0.45)
         self.declare_parameter('max_det', 1000)
         self.declare_parameter('classes', None)
@@ -101,9 +101,15 @@ class ImageStreamSubscriber(Node):
         self.subscription         
         self.srv = self.create_service(DetectObjects, 'detect_objects', self.detect_objects_callback)
         # prevent unused variable warning
+        self.do_continuous = False
 
     def subscriber_callback(self, msg):
         self.img_msg = msg
+        if self.do_continuous:
+            processed_imgmsg, bboxes = self.detect_objects(self.img_msg)
+            
+            self.detection_img_pub.publish(processed_imgmsg)
+            self.bboxes_pub.publish(bboxes)
 
     def detect_objects_callback(self, request, response):
         if self.img_msg is None:
@@ -111,7 +117,7 @@ class ImageStreamSubscriber(Node):
             response.message = "No image received yet"
             return response
         
-        
+        self.do_continuous =  not self.do_continuous 
         processed_imgmsg, bboxes = self.detect_objects(self.img_msg)
         
         self.detection_img_pub.publish(processed_imgmsg)
